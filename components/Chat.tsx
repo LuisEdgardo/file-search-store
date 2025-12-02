@@ -58,13 +58,13 @@ const Chat: React.FC<ChatProps> = ({ config }) => {
     setLoading(true);
 
     try {
-      // Llamada a la API para chat
+      // Llamada a la API para chat - retorna un string directamente
       const response = await apiService.chatWithStore(config, selectedStoreId, input);
 
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.message || 'No response received',
+        content: response || 'No response received',
         timestamp: Date.now()
       };
 
@@ -101,11 +101,11 @@ const Chat: React.FC<ChatProps> = ({ config }) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-800 md:m-4 md:rounded-2xl md:shadow-sm md:border md:border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-800 md:m-4 md:rounded-2xl md:shadow-sm md:border md:border-slate-200 dark:border-slate-700 overflow-hidden transition-colors ">
 
       {/* Header / Store Selector */}
       <div className="flex-none p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between z-10">
-        <div className="flex items-center gap-3 w-full max-w-md">
+        <div className="flex items-center gap-3 w-full max-w-md ">
           <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
             <Sparkles size={20} />
           </div>

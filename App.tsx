@@ -37,10 +37,10 @@ const defaultEmptyConfig: AppConfig = {
 
 const DevluLogo = () => (
   <>
-    <img 
-      src="https://ltnrvtimhwhkskpeewio.supabase.co/storage/v1/object/public/imagenes/LOGO_CUADRADO.png" 
-      alt="Devlu Logo" 
-      className="h-10 w-10 object-contain rounded-lg bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm shadow-sm p-0.5" 
+    <img
+      src="https://ltnrvtimhwhkskpeewio.supabase.co/storage/v1/object/public/imagenes/LOGO_CUADRADO.png"
+      alt="Devlu Logo"
+      className="h-10 w-10 object-contain rounded-lg bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm shadow-sm p-0.5"
     />
     <span className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
       FileSearchStores
@@ -53,7 +53,7 @@ const App: React.FC = () => {
   const [view, setView] = useState<ViewState>(ViewState.STORES);
   const [selectedStore, setSelectedStore] = useState<FileStore | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  
+
   // Theme State
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -81,7 +81,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    
+
     // Función auxiliar para verificar si hay config hardcodeada válida
     const hasHardcodedConfig = Object.values(HARDCODED_CONFIG).some(v => v && v.trim().length > 0);
 
@@ -91,7 +91,7 @@ const App: React.FC = () => {
         // Ensure backward compatibility if stored config misses new keys
         const mergedConfig = { ...defaultEmptyConfig, ...parsed };
         setConfig(mergedConfig);
-        
+
         if (mergedConfig.listStoresUrl) {
           setView(ViewState.STORES);
         } else {
@@ -149,13 +149,13 @@ const App: React.FC = () => {
               {/* Navigation Links */}
               {config.listStoresUrl && (
                 <div className="hidden md:flex items-center gap-1">
-                  <button 
+                  <button
                     onClick={() => setView(ViewState.STORES)}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${view === ViewState.STORES || view === ViewState.DOCUMENTS ? 'text-indigo-600 bg-indigo-50 dark:bg-slate-700 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                   >
                     FileStores
                   </button>
-                  <button 
+                  <button
                     onClick={() => setView(ViewState.CHAT)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${view === ViewState.CHAT ? 'text-indigo-600 bg-indigo-50 dark:bg-slate-700 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                   >
@@ -165,10 +165,10 @@ const App: React.FC = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2">
-               {/* Theme Toggle */}
-               <button
+              {/* Theme Toggle */}
+              <button
                 onClick={toggleTheme}
                 className="p-2 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -178,13 +178,13 @@ const App: React.FC = () => {
 
               {/* Mobile Chat Link */}
               {config.listStoresUrl && (
-                 <button
-                 onClick={() => setView(ViewState.CHAT)}
-                 className={`md:hidden p-2 rounded-full transition-all duration-200 ${view === ViewState.CHAT ? 'bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
-                 title="Chat"
-               >
-                 <MessageSquareText size={20} />
-               </button>
+                <button
+                  onClick={() => setView(ViewState.CHAT)}
+                  className={`md:hidden p-2 rounded-full transition-all duration-200 ${view === ViewState.CHAT ? 'bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                  title="Chat"
+                >
+                  <MessageSquareText size={20} />
+                </button>
               )}
 
               <button
@@ -203,9 +203,9 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-col animate-fade-in overflow-hidden h-[calc(100vh-64px)]">
         {view === ViewState.SETTINGS && (
           <div className="overflow-auto py-8">
-            <Settings 
-              currentConfig={config} 
-              onSave={handleSaveConfig} 
+            <Settings
+              currentConfig={config}
+              onSave={handleSaveConfig}
               onCancel={config.listStoresUrl ? () => setView(ViewState.STORES) : undefined}
               isFirstRun={!config.listStoresUrl}
             />
@@ -214,19 +214,19 @@ const App: React.FC = () => {
 
         {view === ViewState.STORES && (
           <div className="overflow-auto py-8">
-            <FileStores 
-              config={config} 
-              onSelectStore={handleStoreSelect} 
+            <FileStores
+              config={config}
+              onSelectStore={handleStoreSelect}
             />
           </div>
         )}
 
         {view === ViewState.DOCUMENTS && selectedStore && (
           <div className="overflow-auto py-0 h-full">
-            <Documents 
-              config={config} 
-              store={selectedStore} 
-              onBack={goBackToStores} 
+            <Documents
+              config={config}
+              store={selectedStore}
+              onBack={goBackToStores}
             />
           </div>
         )}
