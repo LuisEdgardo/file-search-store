@@ -6,6 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>N8N FileStore Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    // Apply theme immediately to prevent flash
+    (function() {
+      const THEME_KEY = 'n8n_filestore_theme';
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
   <script type="module" src="/index.tsx"></script>
 </head>
 

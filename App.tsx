@@ -10,29 +10,15 @@ import { Settings as SettingsIcon, MessageSquareText, Moon, Sun } from 'lucide-r
 const STORAGE_KEY = 'n8n_filestore_config';
 const THEME_KEY = 'n8n_filestore_theme';
 
-// ------------------------------------------------------------------
-// 🔧 CONFIGURACIÓN HARDCODEADA (OPCIONAL)
-// Si prefieres no ingresar las URLs manualmente en la UI, colócalas aquí.
-// La aplicación usará estos valores si no hay configuración guardada previamente.
-// ------------------------------------------------------------------
-const HARDCODED_CONFIG: AppConfig = {
-  listStoresUrl: 'https://devlu-n8n.ecnsal.easypanel.host/webhook/listStoresUrl',   // ej: https://tu-n8n.com/webhook/list-stores
-  createStoreUrl: 'https://devlu-n8n.ecnsal.easypanel.host/webhook/createStoreUrl',  // ej: https://tu-n8n.com/webhook/create-store
-  deleteStoreUrl: 'https://devlu-n8n.ecnsal.easypanel.host/webhook/deleteStoreUrl',  // ej: https://tu-n8n.com/webhook/delete-store
-  listDocsUrl: 'https://devlu-n8n.ecnsal.easypanel.host/webhook/listDocsUrl',     // ej: https://tu-n8n.com/webhook/list-docs
-  uploadDocUrl: 'https://devlu-n8n.ecnsal.easypanel.host/webhook/uploadDocUrl',    // ej: https://tu-n8n.com/webhook/upload-doc
-  deleteDocUrl: 'https://devlu-n8n.ecnsal.easypanel.host/webhook/deleteDocUrl',     // ej: https://tu-n8n.com/webhook/delete-doc
-  chatDocUrl: 'https://devlu-n8n.ecnsal.easypanel.host/webhook/chat-doc', // 🆕 New Chat Webhook
-};
-
-const defaultEmptyConfig: AppConfig = {
-  listStoresUrl: '',
-  createStoreUrl: '',
-  deleteStoreUrl: '',
-  listDocsUrl: '',
-  uploadDocUrl: '',
-  deleteDocUrl: '',
-  chatDocUrl: '',
+// Configuration loaded from environment variables
+const DEFAULT_CONFIG: AppConfig = {
+  listStoresUrl: import.meta.env.VITE_LIST_STORES_URL || '',
+  createStoreUrl: import.meta.env.VITE_CREATE_STORE_URL || '',
+  deleteStoreUrl: import.meta.env.VITE_DELETE_STORE_URL || '',
+  listDocsUrl: import.meta.env.VITE_LIST_DOCS_URL || '',
+  uploadDocUrl: import.meta.env.VITE_UPLOAD_DOC_URL || '',
+  deleteDocUrl: import.meta.env.VITE_DELETE_DOC_URL || '',
+  chatDocUrl: import.meta.env.VITE_CHAT_DOC_URL || '',
 };
 
 const DevluLogo = () => (
@@ -49,7 +35,7 @@ const DevluLogo = () => (
 );
 
 const App: React.FC = () => {
-  const [config, setConfig] = useState<AppConfig>(defaultEmptyConfig);
+  const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
   const [view, setView] = useState<ViewState>(ViewState.STORES);
   const [selectedStore, setSelectedStore] = useState<FileStore | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -67,10 +53,14 @@ const App: React.FC = () => {
   // Apply theme to document
   useEffect(() => {
     const root = window.document.documentElement;
+    console.log('🎨 Theme changed to:', theme);
+
     if (theme === 'dark') {
       root.classList.add('dark');
+      console.log('✅ Added dark class. Classes:', root.classList.toString());
     } else {
       root.classList.remove('dark');
+      console.log('✅ Removed dark class. Classes:', root.classList.toString());
     }
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
@@ -82,14 +72,14 @@ const App: React.FC = () => {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
 
-    // Función auxiliar para verificar si hay config hardcodeada válida
-    const hasHardcodedConfig = Object.values(HARDCODED_CONFIG).some(v => v && v.trim().length > 0);
+    // Check if there's a valid default config from environment variables
+    const hasDefaultConfig = Object.values(DEFAULT_CONFIG).some(v => v && v.trim().length > 0);
 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         // Ensure backward compatibility if stored config misses new keys
-        const mergedConfig = { ...defaultEmptyConfig, ...parsed };
+        const mergedConfig = { ...DEFAULT_CONFIG, ...parsed };
         setConfig(mergedConfig);
 
         if (mergedConfig.listStoresUrl) {
@@ -98,16 +88,16 @@ const App: React.FC = () => {
           setView(ViewState.SETTINGS);
         }
       } catch (e) {
-        if (hasHardcodedConfig) {
-          setConfig(HARDCODED_CONFIG);
+        if (hasDefaultConfig) {
+          setConfig(DEFAULT_CONFIG);
           setView(ViewState.STORES);
         } else {
           setView(ViewState.SETTINGS);
         }
       }
     } else {
-      if (hasHardcodedConfig) {
-        setConfig(HARDCODED_CONFIG);
+      if (hasDefaultConfig) {
+        setConfig(DEFAULT_CONFIG);
         setView(ViewState.STORES);
       } else {
         setView(ViewState.SETTINGS);
@@ -232,7 +222,9 @@ const App: React.FC = () => {
         )}
 
         {view === ViewState.CHAT && (
-          <Chat config={config} />
+          <div className="flex justify-center items-start w-full h-full">
+            <Chat config={config} />
+          </div>
         )}
       </main>
     </div>
