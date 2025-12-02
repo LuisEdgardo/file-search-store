@@ -1,0 +1,5 @@
+{
+  "name": "N8N FileStore Manager",
+  "description": "A minimalist and elegant interface to manage your FileStores and Documents via N8N webhooks.",
+  "requestFramePermissions": []
+}
