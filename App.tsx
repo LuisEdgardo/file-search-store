@@ -53,14 +53,11 @@ const App: React.FC = () => {
   // Apply theme to document
   useEffect(() => {
     const root = window.document.documentElement;
-    console.log('🎨 Theme changed to:', theme);
 
     if (theme === 'dark') {
       root.classList.add('dark');
-      console.log('✅ Added dark class. Classes:', root.classList.toString());
     } else {
       root.classList.remove('dark');
-      console.log('✅ Removed dark class. Classes:', root.classList.toString());
     }
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
