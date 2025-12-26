@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AppConfig } from '../types';
-import { Save, AlertCircle } from 'lucide-react';
+import { Save, AlertCircle, RotateCcw } from 'lucide-react';
 
 interface SettingsProps {
   currentConfig: AppConfig;
@@ -24,7 +24,7 @@ const Settings: React.FC<SettingsProps> = ({ currentConfig, onSave, onCancel, is
   const validate = () => {
     const newErrors: Partial<Record<keyof AppConfig, string>> = {};
     let isValid = true;
-    
+
     // Validate all keys except optional ones
     (Object.keys(formData) as Array<keyof AppConfig>).forEach(key => {
       // Optional fields
@@ -34,8 +34,13 @@ const Settings: React.FC<SettingsProps> = ({ currentConfig, onSave, onCancel, is
         newErrors[key] = 'URL is required';
         isValid = false;
       } else {
+        const val = formData[key] || '';
+        if (val.startsWith('/')) {
+          // Allow relative paths for proxies
+          return;
+        }
         try {
-          new URL(formData[key]);
+          new URL(val);
         } catch {
           newErrors[key] = 'Invalid URL format';
           isValid = false;
@@ -67,23 +72,23 @@ const Settings: React.FC<SettingsProps> = ({ currentConfig, onSave, onCancel, is
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-6">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Store Management</h3>
-              <InputGroup 
-                label="List Stores (GET)" 
-                value={formData.listStoresUrl} 
+              <InputGroup
+                label="List Stores (GET)"
+                value={formData.listStoresUrl}
                 onChange={(v) => handleChange('listStoresUrl', v)}
                 error={errors.listStoresUrl}
                 placeholder="https://n8n.../list-stores"
               />
-              <InputGroup 
-                label="Create Store (POST)" 
-                value={formData.createStoreUrl} 
+              <InputGroup
+                label="Create Store (POST)"
+                value={formData.createStoreUrl}
                 onChange={(v) => handleChange('createStoreUrl', v)}
                 error={errors.createStoreUrl}
                 placeholder="https://n8n.../create-store"
               />
-              <InputGroup 
-                label="Delete Store (POST)" 
-                value={formData.deleteStoreUrl} 
+              <InputGroup
+                label="Delete Store (POST)"
+                value={formData.deleteStoreUrl}
                 onChange={(v) => handleChange('deleteStoreUrl', v)}
                 error={errors.deleteStoreUrl}
                 placeholder="https://n8n.../delete-store"
@@ -92,40 +97,40 @@ const Settings: React.FC<SettingsProps> = ({ currentConfig, onSave, onCancel, is
 
             <div className="space-y-6">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Document Management</h3>
-              <InputGroup 
-                label="List Documents (POST)" 
-                value={formData.listDocsUrl} 
+              <InputGroup
+                label="List Documents (POST)"
+                value={formData.listDocsUrl}
                 onChange={(v) => handleChange('listDocsUrl', v)}
                 error={errors.listDocsUrl}
                 placeholder="https://n8n.../list-docs"
               />
-              <InputGroup 
-                label="Upload Document (POST)" 
-                value={formData.uploadDocUrl} 
+              <InputGroup
+                label="Upload Document (POST)"
+                value={formData.uploadDocUrl}
                 onChange={(v) => handleChange('uploadDocUrl', v)}
                 error={errors.uploadDocUrl}
                 placeholder="https://n8n.../upload-doc"
               />
-              <InputGroup 
-                label="Delete Document (POST)" 
-                value={formData.deleteDocUrl} 
+              <InputGroup
+                label="Delete Document (POST)"
+                value={formData.deleteDocUrl}
                 onChange={(v) => handleChange('deleteDocUrl', v)}
                 error={errors.deleteDocUrl}
                 placeholder="https://n8n.../delete-doc"
               />
             </div>
-            
+
             <div className="md:col-span-2 space-y-6 pt-4 border-t border-slate-50 dark:border-slate-700">
-               <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">AI Chat Integration</h3>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <InputGroup 
-                  label="Chat with Store (POST)" 
-                  value={formData.chatDocUrl} 
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">AI Chat Integration</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputGroup
+                  label="Chat with Store (POST)"
+                  value={formData.chatDocUrl}
                   onChange={(v) => handleChange('chatDocUrl', v)}
                   error={errors.chatDocUrl}
                   placeholder="https://n8n.../chat-doc"
                 />
-               </div>
+              </div>
             </div>
           </div>
 
@@ -140,6 +145,24 @@ const Settings: React.FC<SettingsProps> = ({ currentConfig, onSave, onCancel, is
               </button>
             )}
             <button
+              type="button"
+              onClick={() => {
+                if (confirm('Are you sure you want to reset to default URLs? This will use the values defined in your environment variables.')) {
+                  // We can't easily access process.env/DEFAULT_CONFIG here without passing it down,
+                  // but we can just clear the form or reload. 
+                  // Let's assume we want to trigger a reset in the parent.
+                  // For now, I'll just reload the page or clear localStorage if I had access.
+                  // BETTER: Request the parent to reset.
+                  localStorage.removeItem('n8n_filestore_config');
+                  window.location.reload();
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 text-amber-600 dark:text-amber-400 font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+            >
+              <RotateCcw size={18} />
+              Reset to Defaults
+            </button>
+            <button
               type="submit"
               className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow-md active:scale-95"
             >
@@ -153,10 +176,10 @@ const Settings: React.FC<SettingsProps> = ({ currentConfig, onSave, onCancel, is
   );
 };
 
-const InputGroup = ({ label, value, onChange, error, placeholder, type = 'text' }: { 
-  label: string; 
-  value: string; 
-  onChange: (v: string) => void; 
+const InputGroup = ({ label, value, onChange, error, placeholder, type = 'text' }: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
   error?: string;
   placeholder?: string;
   type?: string;
