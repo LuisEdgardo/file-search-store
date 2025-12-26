@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/webhook/:path*",
+            "destination": "https://devlu-n8n.ecnsal.easypanel.host/webhook/:path*"
+        }
+    ]
+}
