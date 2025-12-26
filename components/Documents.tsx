@@ -13,7 +13,7 @@ interface DocumentsProps {
 const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
   const [docs, setDocs] = useState<StoreDocument[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Upload State
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
@@ -29,7 +29,7 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
       console.error('Store ID is missing');
       return;
     }
-    
+
     console.log('Fetching docs for store:', store.id);
     setLoading(true);
     try {
@@ -68,7 +68,7 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fileToUpload) return;
-    
+
     setIsUploading(true);
     try {
       await apiService.uploadDocument(config, store.id, fileToUpload);
@@ -98,10 +98,10 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
 
   const confirmDelete = async () => {
     if (!docToDelete) return;
-    
+
     setIsDeleting(true);
     const idToDelete = docToDelete.id;
-    
+
     // Optimistic update
     const prevDocs = [...docs];
     setDocs(docs.filter(d => d.id !== idToDelete));
@@ -121,7 +121,7 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={onBack}
             className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
           >
@@ -151,8 +151,8 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 overflow-hidden flex flex-col transition-colors">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
-             <Loader2 size={32} className="animate-spin mb-4 text-indigo-500" />
-             <p>Loading documents...</p>
+            <Loader2 size={32} className="animate-spin mb-4 text-indigo-500" />
+            <p>Loading documents...</p>
           </div>
         ) : docs.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
@@ -160,7 +160,7 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
               <File size={32} className="text-slate-300 dark:text-slate-500" />
             </div>
             <p>No documents yet.</p>
-            <button 
+            <button
               onClick={() => setIsUploadModalOpen(true)}
               className="mt-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium hover:underline"
             >
@@ -192,8 +192,8 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="text-xs font-mono text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
-                        {doc.id ? doc.id.substring(0, 12) + '...' : 'No ID'}
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded break-all block max-w-[200px]">
+                        {doc.id || 'No ID'}
                       </span>
                     </td>
                     <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400">
@@ -223,7 +223,7 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
         title="Upload Document"
       >
         <form onSubmit={handleUploadSubmit} className="space-y-6">
-          <div 
+          <div
             className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${fileToUpload ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'border-slate-200 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -235,19 +235,19 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
               onChange={handleFileSelect}
               id="file-upload"
             />
-            
+
             <div className="flex flex-col items-center justify-center gap-3">
               <div className={`w-12 h-12 rounded-full flex items-center justify-center ${fileToUpload ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500'}`}>
                 {fileToUpload ? <CheckCircle size={24} /> : <UploadCloud size={24} />}
               </div>
-              
+
               <div className="space-y-1">
                 {fileToUpload ? (
                   <>
                     <p className="text-sm font-medium text-slate-800 dark:text-slate-200 break-all">{fileToUpload.name}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{(fileToUpload.size / 1024).toFixed(1)} KB ready to upload</p>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setFileToUpload(null)}
                       className="text-xs text-red-500 hover:underline mt-2"
                     >
@@ -297,15 +297,15 @@ const Documents: React.FC<DocumentsProps> = ({ config, store, onBack }) => {
         title="Delete Document"
       >
         <div className="space-y-4">
-           <div className="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/30">
-             <div className="text-red-500 shrink-0 mt-0.5">
-               <AlertCircle size={20} />
-             </div>
-             <div className="text-sm text-red-700 dark:text-red-200">
-               <p className="font-semibold mb-1">Confirm deletion</p>
-               <p>Are you sure you want to delete <span className="font-medium text-red-900 dark:text-red-100">{docToDelete?.name}</span>?</p>
-             </div>
-           </div>
+          <div className="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/30">
+            <div className="text-red-500 shrink-0 mt-0.5">
+              <AlertCircle size={20} />
+            </div>
+            <div className="text-sm text-red-700 dark:text-red-200">
+              <p className="font-semibold mb-1">Confirm deletion</p>
+              <p>Are you sure you want to delete <span className="font-medium text-red-900 dark:text-red-100">{docToDelete?.name}</span>?</p>
+            </div>
+          </div>
 
           <div className="flex justify-end gap-3 pt-2">
             <button

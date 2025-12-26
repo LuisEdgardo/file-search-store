@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppConfig, FileStore, ChatMessage } from '../types';
 import { apiService } from '../services/api';
 import { Send, Bot, User, Loader2, Sparkles, AlertCircle, ChevronDown } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatProps {
   config: AppConfig;
@@ -101,7 +102,7 @@ const Chat: React.FC<ChatProps> = ({ config }) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-800 md:m-4 md:rounded-2xl md:shadow-sm md:border md:border-slate-200 dark:border-slate-700 overflow-hidden transition-colors ">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-800 md:m-4 md:rounded-2xl md:shadow-sm md:border md:border-slate-200 dark:border-slate-700 overflow-hidden transition-colors md:w-full ">
 
       {/* Header / Store Selector */}
       <div className="flex-none p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between z-10">
@@ -166,9 +167,23 @@ const Chat: React.FC<ChatProps> = ({ config }) => {
                 : 'bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 text-slate-700 dark:text-slate-100 rounded-bl-sm'
                 }`}
             >
-              {msg.content.split('\n').map((line, i) => (
-                <p key={i} className={i > 0 ? 'mt-2' : ''}>{line}</p>
-              ))}
+              <div className="prose dark:prose-invert prose-sm max-w-none">
+                <ReactMarkdown
+                  components={{
+                    p: ({ node, ...props }) => <p {...props} className="mb-2 last:mb-0" />,
+                    ul: ({ node, ...props }) => <ul {...props} className="list-disc ml-4 mb-2" />,
+                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal ml-4 mb-2" />,
+                    li: ({ node, ...props }) => <li {...props} className="mb-1" />,
+                    code: ({ node, ...props }) => <code {...props} className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400 font-mono text-xs" />,
+                    pre: ({ node, ...props }) => <pre {...props} className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg overflow-x-auto mb-2 font-mono text-xs" />,
+                    h1: ({ node, ...props }) => <h1 {...props} className="text-base font-bold mb-2 mt-3 first:mt-0" />,
+                    h2: ({ node, ...props }) => <h2 {...props} className="text-sm font-bold mb-1 mt-2" />,
+                    h3: ({ node, ...props }) => <h3 {...props} className="text-xs font-bold mb-1 mt-2" />,
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              </div>
             </div>
 
             {msg.role === 'user' && (

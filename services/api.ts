@@ -123,9 +123,7 @@ export const apiService = {
       throw new Error('List Documents URL is not configured');
     }
 
-    console.log(`🚀 [List Docs] Calling webhook: ${config.listDocsUrl} for store: ${storeId}`);
-
-    // Changed to POST to support sending body data as requested ("enviar campo name")
+    // Restored to POST as requested. If 500 persists, n8n side logs should be checked.
     const response = await fetch(config.listDocsUrl, {
       method: 'POST',
       headers: {
@@ -146,30 +144,55 @@ export const apiService = {
     // Normalize response: handle if n8n returns object with array or just array
     const rawDocs = Array.isArray(data) ? data : (data.documents || data.data || []);
 
-    // Map the docs to ensure we catch the correct ID (resource name)
-    return rawDocs.map((doc: any) => ({
-      ...doc,
-      // Priority for ID: existing id -> name (resource identifier)
-      id: doc.id || doc.name,
-      // Priority for Display Name: displayName -> name (if not ID-like) -> fallback
-      name: doc.displayName || doc.name || 'Untitled Document',
-      size: doc.sizeBytes || doc.size, // Normalize size if needed
-      mimeType: doc.mimeType
-    }));
+    // Map the docs to ensure we catch the correct ID and a descriptive name
+    return rawDocs.map((doc: any) => {
+      // Look for a custom name in metadata (like "nombreFile")
+      let customName = '';
+      if (doc.customMetadata && Array.isArray(doc.customMetadata)) {
+        const nameField = doc.customMetadata.find((m: any) => m.key === 'nombreFile');
+        if (nameField && nameField.stringValue) {
+          customName = nameField.stringValue;
+        }
+      }
+
+      return {
+        ...doc,
+        // Priority for ID: existing id -> name (resource identifier)
+        id: doc.id || doc.name,
+        // Priority for Name: customName from metadata -> displayName -> name (resource ID)
+        name: customName || doc.displayName || doc.name || 'Untitled Document',
+        size: doc.sizeBytes || doc.size,
+        mimeType: doc.mimeType
+      };
+    });
   },
 
   uploadDocument: async (config: AppConfig, storeId: string, file: File): Promise<void> => {
     const formData = new FormData();
+    // 'file' contains the binary data. The browser automatically includes the filename 
+    // in the Content-Disposition header of this part.
     formData.append('file', file);
-    // Changing 'storeId' to 'name' to be consistent with other endpoints where 'name' refers to the resource ID
+
+    // Explicitly sending the filename in case the n8n workflow expects it as a separate field
+    formData.append('fileName', file.name);
+
+    // Sending the store identifier as 'name' (consistent with other endpoints)
     formData.append('name', storeId);
+
+    console.log(`📤 [Upload Doc] Uploading "${file.name}" to store: ${storeId}`);
 
     const response = await fetch(config.uploadDocUrl, {
       method: 'POST',
-      // Content-Type is set automatically with boundary for FormData
       body: formData,
     });
-    if (!response.ok) throw new Error(`Failed to upload document: ${response.statusText}`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ [Upload Doc] Failed: ${response.status}`, errorText);
+      throw new Error(`Failed to upload document: ${response.statusText}`);
+    }
+
+    console.log(`✅ [Upload Doc] Successfully uploaded: ${file.name}`);
   },
 
   deleteDocument: async (config: AppConfig, storeId: string, docId: string): Promise<void> => {
